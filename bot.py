@@ -1,7 +1,7 @@
 import datasets
 from functools import partial
 from loguru import logger
-from utils import (
+from .utils import (
     generate_together_stream,
     generate_with_references,
     DEBUG,
@@ -24,18 +24,14 @@ welcome_message = """
 Mixture of Agents (MoA) is a novel approach that leverages the collective strengths of multiple LLMs to enhance performance, achieving state-of-the-art results. By employing a layered architecture where each layer comprises several LLM agents, MoA significantly outperforms GPT-4 Omni’s 57.5% on AlpacaEval 2.0 with a score of 65.1%, using only open-source models!
 
 This demo uses the following LLMs as reference models, then passes the results to the aggregate model for the final response:
-- Qwen/Qwen2-72B-Instruct
-- Qwen/Qwen1.5-72B-Chat
-- mistralai/Mixtral-8x22B-Instruct-v0.1
-- databricks/dbrx-instruct
 
 """
 
 default_reference_models = [
-    "Qwen/Qwen2-72B-Instruct",
-    "Qwen/Qwen1.5-72B-Chat",
-    "mistralai/Mixtral-8x22B-Instruct-v0.1",
-    "databricks/dbrx-instruct",
+    "llama-3.1-8b-instant",
+    "llama-3.1-70b-versatile",
+    "mixtral-8x7B-32768",
+    "gemma2-9b-it",
 ]
 
 
@@ -83,10 +79,10 @@ def process_fn(
 
 
 def main(
-    model: str = "Qwen/Qwen2-72B-Instruct",
+    model: str = "llama-3.1-70b-versatile",
     reference_models: list[str] = default_reference_models,
     temperature: float = 0.7,
-    max_tokens: int = 512,
+    max_tokens: int = 2048,
     rounds: int = 1,
     multi_turn=True,
 ):
@@ -118,7 +114,7 @@ def main(
 
     model = Prompt.ask(
         "\n1. What main model do you want to use?",
-        default="Qwen/Qwen2-72B-Instruct",
+        default="llama-3.1-70b-versatile",
     )
     console.print(f"Selected {model}.", style="yellow italic")
     temperature = float(
@@ -131,8 +127,8 @@ def main(
     console.print(f"Selected {temperature}.", style="yellow italic")
     max_tokens = int(
         Prompt.ask(
-            "3. What max tokens do you want to use? [cyan bold](512) [/cyan bold]",
-            default=512,
+            "3. What max tokens do you want to use? [cyan bold](2048) [/cyan bold]",
+            default=2048,
             show_default=True,
         )
     )
@@ -199,10 +195,10 @@ def main(
 
         for chunk in output:
             out = chunk.choices[0].delta.content
-            console.print(out, end="")
-            all_output += out
+            if out is not None:
+                console.print(out, end="")
+                all_output += out
         print()
-
         if DEBUG:
             logger.info(
                 f"model: {model}, instruction: {data['instruction'][0]}, output: {all_output[:20]}"
