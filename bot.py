@@ -5,6 +5,7 @@ from .utils import (
     generate_together_stream,
     generate_with_references,
     DEBUG,
+    APIProvider,  # Add this import
 )
 import typer
 from rich import print
@@ -39,6 +40,7 @@ def process_fn(
     item,
     temperature=0.7,
     max_tokens=2048,
+    reference_models=None,
 ):
     """
     Processes a single item (e.g., a conversational turn) using specified model parameters to generate a response.
@@ -61,12 +63,14 @@ def process_fn(
     model = item["model"]
     messages = item["instruction"]
 
+    api_provider = APIProvider(reference_models[model])  # Get the API provider for this model
     output = generate_with_references(
         model=model,
         messages=messages,
         references=references,
         temperature=temperature,
         max_tokens=max_tokens,
+        api_provider=api_provider,
     )
     if DEBUG:
         logger.info(
