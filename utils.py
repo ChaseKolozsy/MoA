@@ -242,7 +242,7 @@ def generate_with_references(
 def generate_gemini(
     model,
     messages,
-    max_tokens=2048,
+    max_tokens=8096,
     temperature=0.7,
     streaming=False,
     api_provider=APIProvider.GEMINI,
