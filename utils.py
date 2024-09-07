@@ -47,6 +47,9 @@ def generate_together(
             elif api_provider == APIProvider.OPENAI:
                 endpoint = "https://api.openai.com/v1/chat/completions"
                 api_key = os.environ.get("OPENAI_API_KEY")
+            elif api_provider == APIProvider.DEEPSEEK:
+                endpoint = "https://api.deepseek.com/v1/chat/completions"
+                api_key = os.environ.get("DEEPSEEK_API_KEY")
             else:
                 raise ValueError(f"Unsupported API provider: {api_provider}")
 
